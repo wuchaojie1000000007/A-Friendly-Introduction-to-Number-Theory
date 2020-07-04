@@ -1,0 +1,53 @@
+import kotlin.IllegalArgumentException
+
+/**
+ *  Find greatest common divisor between a and b, call it c.
+ *  So gcd(a, b) = c.*/
+fun main() {
+
+    println(gcd(12345, 67890))
+    // 15
+
+    println(gcd(54321, 9876))
+    // 3
+
+    println(gcd(0, 5))
+    // 5
+
+    println(gcd(0, 0))
+    // Exception in thread "main" java.lang.IllegalArgumentException: gcd: arg1 is 0, arg2 is 0
+
+}
+
+// return greatest common divisor between a and b.
+fun gcd(a: Int, b: Int): Int {
+    if (a < 1 && b < 1)
+        throw IllegalArgumentException("gcd: arg1 is $a, arg2 is $b")
+
+    var arg1 = a
+    var arg2 = b
+
+    // Make arg1 >= arg2.
+    if (arg1 < arg2)
+        arg1 = arg2.also { arg2 = arg1 }
+
+
+    if (arg2 == 0) {
+        // If one arg is 0, return another arg.
+
+        return arg1
+
+    } else {
+        // Both args are bigger than 0.
+
+        // Check remainder. If it is 0, then return arg2, else do Euclidean algorithm until remainder is 0.
+        var remainder = arg1 % arg2
+        while (remainder != 0) {
+            arg1 = arg2
+            arg2 = remainder
+            remainder = arg1 % arg2
+        }
+
+        return arg2
+    }
+}
