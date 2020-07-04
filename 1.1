@@ -1,0 +1,63 @@
+import kotlin.IllegalArgumentException
+
+/**
+ *  Find number x, such that x = n * n and x = m * (m + 1) / 2,
+ *  n and m are both positive integer.*/
+fun main() {
+    
+    // Only 7 number less than 2.pow(32) match condition.
+    println(findNumber(7))
+    // [1, 36, 1225, 41616, 1413721, 48024900, 1631432881]
+
+}
+
+fun findNumber(amount: Int): List<Int> {
+
+    // Amout == "how many X number you want", for X less than 2.pow(32).
+    if (amount < 1)
+        throw IllegalArgumentException("Input number should bigger or equal to 1.")
+
+    // Base number for square number.
+    var n = 1
+
+    // Base number for triangle number.
+    var m = 1
+
+    // Init X number list
+    val XList = mutableListOf<Int>()
+
+    // Keep find until list size == amount.
+    while (XList.size < amount) {
+        when {
+            // Triangle number is smaller, increase base number.
+            getSquareNumber(n) > getTriangleNumber(m) -> {
+                m += 1
+            }
+            // Square number is smaller, increase base number.
+            getSquareNumber(n) < getTriangleNumber(m) -> {
+                n += 1
+            }
+            // Find a number match condition, put it into list. And increase base number.
+            else -> {
+                XList.add(getSquareNumber(n))
+                n += 1
+                m += 1
+            }
+        }
+    }
+    return XList
+}
+
+// Give base number, return square number.
+fun getSquareNumber(n: Int): Int {
+    if (n > 46340)
+        throw IllegalArgumentException("Square number is too big: $n * $n")
+    return n * n
+}
+
+// Give base number, return triangle number.
+fun getTriangleNumber(m: Int): Int {
+    if (m > 65535)
+        throw IllegalArgumentException("Triangle number is too big: $m * ${m + 1} / 2")
+    return if (m % 2 == 0) m / 2 * (m + 1) else (m + 1) / 2 * m
+}
