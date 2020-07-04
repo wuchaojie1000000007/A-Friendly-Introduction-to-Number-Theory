@@ -28,7 +28,7 @@ fun findNumber(amount: Int): List<Int> {
     // Init X number list
     val XList = mutableListOf<Int>()
 
-    // Keep find until list size == amount.
+    // Keep finding until list size == amount.
     while (XList.size < amount) {
         when {
             // Triangle number is smaller, increase base number.
