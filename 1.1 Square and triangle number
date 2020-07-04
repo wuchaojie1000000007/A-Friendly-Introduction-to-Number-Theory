@@ -5,9 +5,11 @@ import kotlin.IllegalArgumentException
  *  n and m are both positive integer.*/
 fun main() {
     
-    // Only 7 number less than 2.pow(32) match condition.
     println(findNumber(7))
     // [1, 36, 1225, 41616, 1413721, 48024900, 1631432881]
+    
+    println(findNumber(8))
+    // Exception in thread "main" java.lang.IllegalArgumentException: Square number is too big: 46341 * 46341
 
 }
 
