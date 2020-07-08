@@ -1,0 +1,138 @@
+/**
+ * Famous 3x+1 problem.
+ * Input: n, maybe need be smaller.
+ * Output: length of the algorithm, and the final number make it stop
+ * */
+
+fun main() {
+
+    (1..100).forEach {
+        val (length, stop) = threeNPlusOne(it)
+        println("Number: $it, Length: $length, Stop Number: $stop")
+    }
+/*    Number: 1, Length: 3, Stop Number: 1
+    Number: 2, Length: 3, Stop Number: 2
+    Number: 3, Length: 8, Stop Number: 4
+    Number: 4, Length: 3, Stop Number: 4
+    Number: 5, Length: 6, Stop Number: 4
+    Number: 6, Length: 9, Stop Number: 4
+    Number: 7, Length: 17, Stop Number: 4
+    Number: 8, Length: 4, Stop Number: 4
+    Number: 9, Length: 20, Stop Number: 4
+    Number: 10, Length: 7, Stop Number: 4
+    Number: 11, Length: 15, Stop Number: 4
+    Number: 12, Length: 10, Stop Number: 4
+    Number: 13, Length: 10, Stop Number: 4
+    Number: 14, Length: 18, Stop Number: 4
+    Number: 15, Length: 18, Stop Number: 4
+    Number: 16, Length: 5, Stop Number: 4
+    Number: 17, Length: 13, Stop Number: 4
+    Number: 18, Length: 21, Stop Number: 4
+    Number: 19, Length: 21, Stop Number: 4
+    Number: 20, Length: 8, Stop Number: 4
+    Number: 21, Length: 8, Stop Number: 4
+    Number: 22, Length: 16, Stop Number: 4
+    Number: 23, Length: 16, Stop Number: 4
+    Number: 24, Length: 11, Stop Number: 4
+    Number: 25, Length: 24, Stop Number: 4
+    Number: 26, Length: 11, Stop Number: 4
+    Number: 27, Length: 112, Stop Number: 4
+    Number: 28, Length: 19, Stop Number: 4
+    Number: 29, Length: 19, Stop Number: 4
+    Number: 30, Length: 19, Stop Number: 4
+    Number: 31, Length: 107, Stop Number: 4
+    Number: 32, Length: 6, Stop Number: 4
+    Number: 33, Length: 27, Stop Number: 4
+    Number: 34, Length: 14, Stop Number: 4
+    Number: 35, Length: 14, Stop Number: 4
+    Number: 36, Length: 22, Stop Number: 4
+    Number: 37, Length: 22, Stop Number: 4
+    Number: 38, Length: 22, Stop Number: 4
+    Number: 39, Length: 35, Stop Number: 4
+    Number: 40, Length: 9, Stop Number: 4
+    Number: 41, Length: 110, Stop Number: 4
+    Number: 42, Length: 9, Stop Number: 4
+    Number: 43, Length: 30, Stop Number: 4
+    Number: 44, Length: 17, Stop Number: 4
+    Number: 45, Length: 17, Stop Number: 4
+    Number: 46, Length: 17, Stop Number: 4
+    Number: 47, Length: 105, Stop Number: 4
+    Number: 48, Length: 12, Stop Number: 4
+    Number: 49, Length: 25, Stop Number: 4
+    Number: 50, Length: 25, Stop Number: 4
+    Number: 51, Length: 25, Stop Number: 4
+    Number: 52, Length: 12, Stop Number: 4
+    Number: 53, Length: 12, Stop Number: 4
+    Number: 54, Length: 113, Stop Number: 4
+    Number: 55, Length: 113, Stop Number: 4
+    Number: 56, Length: 20, Stop Number: 4
+    Number: 57, Length: 33, Stop Number: 4
+    Number: 58, Length: 20, Stop Number: 4
+    Number: 59, Length: 33, Stop Number: 4
+    Number: 60, Length: 20, Stop Number: 4
+    Number: 61, Length: 20, Stop Number: 4
+    Number: 62, Length: 108, Stop Number: 4
+    Number: 63, Length: 108, Stop Number: 4
+    Number: 64, Length: 7, Stop Number: 4
+    Number: 65, Length: 28, Stop Number: 4
+    Number: 66, Length: 28, Stop Number: 4
+    Number: 67, Length: 28, Stop Number: 4
+    Number: 68, Length: 15, Stop Number: 4
+    Number: 69, Length: 15, Stop Number: 4
+    Number: 70, Length: 15, Stop Number: 4
+    Number: 71, Length: 103, Stop Number: 4
+    Number: 72, Length: 23, Stop Number: 4
+    Number: 73, Length: 116, Stop Number: 4
+    Number: 74, Length: 23, Stop Number: 4
+    Number: 75, Length: 15, Stop Number: 4
+    Number: 76, Length: 23, Stop Number: 4
+    Number: 77, Length: 23, Stop Number: 4
+    Number: 78, Length: 36, Stop Number: 4
+    Number: 79, Length: 36, Stop Number: 4
+    Number: 80, Length: 10, Stop Number: 4
+    Number: 81, Length: 23, Stop Number: 4
+    Number: 82, Length: 111, Stop Number: 4
+    Number: 83, Length: 111, Stop Number: 4
+    Number: 84, Length: 10, Stop Number: 4
+    Number: 85, Length: 10, Stop Number: 4
+    Number: 86, Length: 31, Stop Number: 4
+    Number: 87, Length: 31, Stop Number: 4
+    Number: 88, Length: 18, Stop Number: 4
+    Number: 89, Length: 31, Stop Number: 4
+    Number: 90, Length: 18, Stop Number: 4
+    Number: 91, Length: 93, Stop Number: 4
+    Number: 92, Length: 18, Stop Number: 4
+    Number: 93, Length: 18, Stop Number: 4
+    Number: 94, Length: 106, Stop Number: 4
+    Number: 95, Length: 106, Stop Number: 4
+    Number: 96, Length: 13, Stop Number: 4
+    Number: 97, Length: 119, Stop Number: 4
+    Number: 98, Length: 26, Stop Number: 4
+    Number: 99, Length: 26, Stop Number: 4
+    Number: 100, Length: 26, Stop Number: 4*/
+}
+
+// return Pair(length, final number)
+fun threeNPlusOne(n: Int): Pair<Int, Int> {
+
+    // If no see before, put num into it.
+    val reachableNumber = mutableListOf<Int>()
+
+    // Put n into list.
+    var num = n
+    reachableNumber += num
+
+    // Keep doing until find the same number.
+    while (true) {
+        when (num % 2) {
+            1 ->
+                num = 3 * num + 1
+            0 -> {
+                num /= 2
+            }
+        }
+        if (num !in reachableNumber) {
+            reachableNumber += num
+        } else return Pair(reachableNumber.size, num)
+    }
+}
