@@ -51,3 +51,7 @@ fun gcd(a: Int, b: Int): Int {
         return arg2
     }
 }
+
+
+// A better one
+tailrec fun gcd(x: Int, y: Int): Int = if (y == 0) x else gcd(y, x % y)
