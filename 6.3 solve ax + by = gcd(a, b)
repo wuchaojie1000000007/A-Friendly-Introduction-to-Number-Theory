@@ -75,9 +75,9 @@ fun getIntegerRoot(a: Int, b: Int): Triple<Int, Int, Int> {
 
     }
 
-    // Want x > 0.
+    // Want x > 0. smallest no-negative too.
     while (smallLinearCombination.first <= 0) {
-        smallLinearCombination += Pair(b, -a)
+        smallLinearCombination += Pair(b/small, -a/small)
     }
 
     // ax + by = gcd(a, b)  ->  Triple(x, y, gcd(a, b))
