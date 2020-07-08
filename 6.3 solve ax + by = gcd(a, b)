@@ -1,0 +1,119 @@
+/**
+ * give a, b.
+ * find ax + by = gcd(a, b) integer solution
+ * return Triple(x, y, gcd(a, b)) where x >= 0.*/
+
+fun main() {
+    // a = 0, b = 0.  (0, 0, 0)
+    println(getIntegerRoot(0, 0))
+    
+    // a = 0.  (0, 1, 4)
+    println(getIntegerRoot(0, 4))
+    
+    // b = 0.  (1, 0, 3)
+    println(getIntegerRoot(3, 0))
+    
+    // a = K * b.  (0, 1, 3)
+    println(getIntegerRoot(6, 3))
+    
+    // b = K * a.  (1, 0, 2)
+    println(getIntegerRoot(2, 6))
+    
+    // (35, -19, 203)
+    println(getIntegerRoot(12789, 23548))
+    
+    // (19839059, -22231676, 237)
+    println(getIntegerRoot(22241739, 19848039))
+}
+
+fun getIntegerRoot(a: Int, b: Int): Triple<Int, Int, Int> {
+
+    // Handle when input < 0
+    if (a < 0 || b < 0) throw IllegalArgumentException("Input should be non-negative.")
+
+    // Handle when input have 0.
+    if (a == 0 && b > 0) return Triple(0, 1, b)
+    if (a > 0 && b == 0) return Triple(1, 0, a)
+    if (a == 0 && b == 0) return Triple(0, 0, 0)
+
+
+    /**
+     * Handle when input both > 0.
+     *
+     * Pair(m, n) means this number equals to a * m + b * n.
+     * */
+
+    // If b > a, also get correct answer.
+    var big = a
+    var small = b
+
+    // Keep this number's LinearCombination of a and b.
+    var bigLinearCombination = Pair(1, 0)
+    var smallLinearCombination = Pair(0, 1)
+
+    // See if a = K * b, if it is, then return easily.
+    var remainder = big % small
+    if (remainder == 0) return Triple(0, 1, small)
+
+    // Do Euclidean algorithm, keep the Linear Combination for remainder.
+    while (remainder != 0) {
+        val quotient = big / small
+
+        // Change big and small number.
+        big = small
+        small = remainder
+
+        // Find Linear Combination for remainder.
+        val newPair = bigLinearCombination - quotient * smallLinearCombination
+
+        // Change big and small number Linear Combination.
+        bigLinearCombination = smallLinearCombination
+        smallLinearCombination = newPair
+
+        // For condition "while".
+        remainder = big % small
+
+    }
+
+    // Want x > 0.
+    while (smallLinearCombination.first <= 0) {
+        smallLinearCombination += Pair(b, -a)
+    }
+
+    // ax + by = gcd(a, b)  ->  Triple(x, y, gcd(a, b))
+    return Triple(smallLinearCombination.first, smallLinearCombination.second, small)
+}
+
+// Incase a = K * b, or the result will be incorrect.
+tailrec fun gcd(x: Int, y: Int): Int = if (y == 0) x else gcd(y, x % y)
+
+// For Pair operation
+operator fun Pair<Int, Int>.times(int: Int) = Pair(this.first * int, this.second * int)
+operator fun Pair<Int, Int>.minus(other: Pair<Int, Int>) =
+    Pair(this.first - other.first, this.second - other.second)
+operator fun Pair<Int, Int>.plus(other: Pair<Int, Int>) =
+    Pair(this.first + other.first, this.second + other.second)
+operator fun Int.times(other: Pair<Int, Int>) = Pair(this * other.first, this * other.second)
+
+
+// Result means (gcd(a, b), x, y).  This is book's solution, hard to figure out meaning. And when b = 0, it will be incorrect.
+fun f(a: Int, b: Int): Triple<Int, Int, Int> {
+    var x = 1
+    var g = a
+    var v = 0
+    var w = b
+    while (true) {
+        if (w == 0) {
+            val y = (g - a * x) / b
+            return Triple(g, x, y)
+        }
+        val t = g % w
+        val q = g / w
+        val s = x - q * v
+        g = q * w + t
+        x = v
+        g = w
+        v = s
+        w = t
+    }
+}
