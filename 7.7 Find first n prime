@@ -1,0 +1,72 @@
+import kotlin.math.sqrt
+
+/**
+ * Find first n prime numbers
+ * Return them as a list. */
+
+fun main() {
+
+    // [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541]
+    println(findNPrime(100))
+}
+
+// Return first n prime numbers as a list.
+fun findNPrime(size: Int): MutableList<Int> {
+
+    // Handle argument issue.
+    if (size < 0) throw IllegalArgumentException("Size should be non-negative.")
+
+    // If size = 0, just return empty list.
+    if (size == 0) return mutableListOf()
+
+    var num = 2
+    val primeList = mutableListOf<Int>()
+
+    // Put 2 in list, so when in loop, only look at odd number.
+    primeList += num
+
+    // Next prime number is 3.
+    num += 1
+
+
+    // Check if num is prime number.
+    fun isPrime(num: Int): Boolean {
+
+        // If num is not prime number, it can only be divide by 2..sqrt(num).
+        for (prime in primeList) {
+
+            // Can not be divide.
+            if (prime > sqrt(num.toDouble())) {
+                return true
+            }
+
+            // Can be divide.
+            if (num % prime == 0)
+                return false
+        }
+        return false
+    }
+
+    // Still need size - 1 prime number.  Had put 2 in list.
+    var need = size - 1
+
+    // Keep generate until list size = n.
+    while (need > 0) {
+        
+        // Check if num is prime
+        val isPrime = isPrime(num)
+        
+        // Num is prime.
+        if (isPrime) {
+            
+            // Put it into prime number list
+            primeList += num
+            need -= 1
+            
+        }
+        
+        // Look for next odd number
+        num += 2
+    }
+    return primeList
+}
