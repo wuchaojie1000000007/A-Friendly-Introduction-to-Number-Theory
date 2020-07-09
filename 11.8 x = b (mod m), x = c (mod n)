@@ -1,0 +1,137 @@
+/**
+ * input: b, m, c, n.
+ * solve x = b (mod m), x = c (mod n)
+ * If have solution, print all that less tham m, else print "No solution"*/
+
+fun main() {
+
+    // 59
+    println(getRes(3, 7, 5, 9))
+
+    // 262
+    println(getRes(3, 37, 1, 87))
+}
+
+// There is a solution 0 <= x < m*n.
+fun getRes(b: Int, m: Int, c: Int, n: Int): Int {
+
+    // Get result, it is a list.
+    val resList = getResult(m, c - b, n)
+
+    // Get number result.
+    var res = resList!![0]
+    res = res * m + b
+
+    // Make sure 0 <= x < m*n
+    while (res < 0) {
+        res += m * n
+    }
+    while (res >= m * n) {
+        res -= m * n
+    }
+
+    return res
+
+}
+
+// solve ax = c (mod m), if no solution, return null, else return solution list.
+fun getResult(a: Int, c: Int, m: Int): MutableList<Int>? {
+
+    // Solve base case.
+    val (x, y, gcd) = getIntegerRoot(a, m)
+
+    // There is no solution
+    if (c % gcd != 0) {
+
+        return null
+
+        // There has solution.
+    } else {
+
+        // List contains solutions.
+        val solution = mutableListOf<Int>()
+
+        // There are gcd(a, m) solutions.
+        repeat(gcd) {
+
+            // First solution = x * c / gcd.
+            // Next solution - before solution = m / gcd(a, m)
+            solution += (x * c / gcd + it * m / gcd) % m
+        }
+        return solution
+    }
+
+
+}
+
+// solve ax + by = gcd(a, b).   ax + by = gcd(a, b)  ->  Triple(x, y, gcd(a, b))
+fun getIntegerRoot(a: Int, b: Int): Triple<Int, Int, Int> {
+
+    // Handle when input < 0
+    if (a < 0 || b < 0) throw IllegalArgumentException("Input should be non-negative.")
+
+    // Handle when input have 0.
+    if (a == 0 && b > 0) return Triple(0, 1, b)
+    if (a > 0 && b == 0) return Triple(1, 0, a)
+    if (a == 0 && b == 0) return Triple(0, 0, 0)
+
+
+    /**
+     * Handle when input both > 0.
+     *
+     * Pair(m, n) means this number equals to a * m + b * n.
+     * */
+
+    // If b > a, also get correct answer.
+    var big = a
+    var small = b
+
+    // Keep this number's LinearCombination of a and b.
+    var bigLinearCombination = Pair(1, 0)
+    var smallLinearCombination = Pair(0, 1)
+
+    // See if a = K * b, if it is, then return easily.
+    var remainder = big % small
+    if (remainder == 0) return Triple(0, 1, small)
+
+    // Do Euclidean algorithm, keep the Linear Combination for remainder.
+    while (remainder != 0) {
+        val quotient = big / small
+
+        // Change big and small number.
+        big = small
+        small = remainder
+
+        // Find Linear Combination for remainder.
+        val newPair = bigLinearCombination - quotient * smallLinearCombination
+
+        // Change big and small number Linear Combination.
+        bigLinearCombination = smallLinearCombination
+        smallLinearCombination = newPair
+
+        // For condition "while".
+        remainder = big % small
+
+    }
+
+    // Want x > 0. smallest no-negative too.
+    while (smallLinearCombination.first <= 0) {
+        smallLinearCombination += Pair(b / small, -a / small)
+    }
+
+    // ax + by = gcd(a, b)  ->  Triple(x, y, gcd(a, b))
+    return Triple(smallLinearCombination.first, smallLinearCombination.second, small)
+}
+
+// Incase a = K * b, or the result will be incorrect.
+tailrec fun gcd(x: Int, y: Int): Int = if (y == 0) x else gcd(y, x % y)
+
+// For Pair operation
+operator fun Pair<Int, Int>.times(int: Int) = Pair(this.first * int, this.second * int)
+operator fun Pair<Int, Int>.minus(other: Pair<Int, Int>) =
+    Pair(this.first - other.first, this.second - other.second)
+
+operator fun Pair<Int, Int>.plus(other: Pair<Int, Int>) =
+    Pair(this.first + other.first, this.second + other.second)
+
+operator fun Int.times(other: Pair<Int, Int>) = Pair(this * other.first, this * other.second)
