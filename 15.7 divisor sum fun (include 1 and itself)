@@ -6,7 +6,7 @@ import kotlin.math.sqrt
 /**
  * A related function is the divisor summatory function, which,
  * as the name implies, is a sum over the divisor function.
- * as below.*/
+ * (include 1 and itself) which is as follows.*/
 
 fun main() {
 
