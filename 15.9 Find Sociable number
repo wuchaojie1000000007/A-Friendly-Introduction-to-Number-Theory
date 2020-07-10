@@ -1,0 +1,199 @@
+import kotlin.math.exp
+import kotlin.math.log
+import kotlin.math.pow
+import kotlin.math.sqrt
+
+/**
+ * Find Sociable number
+ * Give size n, and period m.*/
+
+
+fun main() {
+
+    val n = 1_000_000_000
+    val m = 9
+
+    // For factorization
+    val size = getPrimeListSize(n)
+    val primeList = findNPrime(size)
+
+    // sList[i] = s(i), which means divisor sum(not include itself) s[10] = 1+2+5=7. s[220] = 284. s[284]=220
+    val sList = MutableList(n + 1) { divisorSumFun(it, primeList) }
+
+    (0..n).forEach {
+
+        // Keep sociable number.
+        val numList = mutableListOf<Int>()
+
+        // Init first number.
+        var numBefor = it
+        numList += numBefor
+
+        // Find next period -1 number.
+        repeat(m - 1) {
+
+            val numNext = sList[numBefor]
+
+            // size overflow, stop this number.
+            if (numNext > n)
+                return@repeat
+
+            // If has same number, skip this number.
+            if (numNext !in numList) {
+                numList += numNext
+            } else return@repeat
+
+            // Move in next loop.
+            numBefor = numNext
+        }
+
+        // Check the size and Sociability.
+        if (numList.size == m && sList[numList[m - 1]] == numList[0]) {
+            println("Sociable number: $numList")
+        }
+
+    }
+
+
+}
+
+
+// calclude the number of divisors sum of an integer (including 1 but no number itself)
+fun divisorSumFun(n: Int, primeList: List<Int>): Int {
+
+    // Factorizate number n.
+    val fac = fac(n, primeList)
+
+    if (n == 0)
+        return 0
+    if (n == 1)
+        return 0
+
+    // Keep sum
+    var sum = 1
+
+    // sigma(m, n) = sigma(m) * sigma(n),  gcd(m, n) = 1
+    fac.forEach {
+        val s = (it.first.toDouble().pow(it.second + 1) - 1) / (it.first - 1)
+        sum *= s.toInt()
+    }
+
+    return sum - n
+}
+
+// Factorize a number, return List of Pair(prime, times)   1000 = [(2, 3), (5, 3)]
+fun factorization(n: Int, primeList: List<Int>): List<Pair<Int, Int>> {
+
+    return fac(n, primeList)
+}
+
+// The biggest prime number in prime list is about sqrt(n).
+fun fac(n: Int, primeList: List<Int>): List<Pair<Int, Int>> {
+
+    if (n == 0) return mutableListOf<Pair<Int, Int>>(Pair(0, 0))
+
+    // Init steps
+    var number = n
+    val facList = mutableListOf<Pair<Int, Int>>()
+    var index = -1
+
+    // Check each prime number.
+    for (prime in primeList) {
+
+        // Divisor are 1 and number.
+        if (prime > sqrt(number.toDouble())) {
+            facList.add(Pair(number, 1))
+            return facList
+        }
+
+        // If it's divisor, put it into list
+        if (number % prime == 0) {
+            facList.add(Pair(prime, 0))
+            index += 1
+        }
+
+        // Factor num until they are coPrime.
+        while (number > 1 && number % prime == 0) {
+            facList[index] = facList[index] + 1
+            number /= prime
+        }
+
+        // If finish factor, return list.
+        if (number == 1)
+            return facList
+    }
+
+    // Do nothing.
+    return facList
+}
+
+operator fun Pair<Int, Int>.plus(int: Int) = Pair(this.first, this.second + int)
+
+// Prime number theorem, find 26% more incase n is small.
+fun getPrimeListSize(n: Int): Int {
+
+    if (n < 10)
+        throw IllegalArgumentException("Arg be bigger than 9.")
+
+    return (n / log(n.toDouble(), exp(1.0)) * 1.07).toInt()
+}
+
+// Return first n prime numbers as a list.
+fun findNPrime(size: Int): MutableList<Int> {
+
+    // Handle argument issue.
+    if (size < 0) throw IllegalArgumentException("Size should be non-negative.")
+
+    // If size = 0, just return empty list.
+    if (size == 0) return mutableListOf()
+
+    var num = 2
+    val primeList = mutableListOf<Int>()
+
+    // Put 2 in list, so when in loop, only look at odd number.
+    primeList += num
+
+    // Next prime number is 3.
+    num += 1
+
+    // Check if num is prime number.
+    fun isPrime(num: Int): Boolean {
+
+        // If num is not prime number, it can only be divide by 2..sqrt(num).
+        for (prime in primeList) {
+
+            // Can not be divide.
+            if (prime > sqrt(num.toDouble())) {
+                return true
+            }
+
+            // Can be divide.
+            if (num % prime == 0)
+                return false
+        }
+        return false
+    }
+
+    // Still need size - 1 prime number.  Had put 2 in list.
+    var need = size - 1
+
+    // Keep generate until list size = n.
+    while (need > 0) {
+
+        // Check if num is prime
+        val isPrime = isPrime(num)
+
+        // Num is prime.
+        if (isPrime) {
+
+            // Put it into prime number list
+            primeList += num
+            need -= 1
+
+        }
+
+        // Look for next odd number
+        num += 2
+    }
+    return primeList
+}
