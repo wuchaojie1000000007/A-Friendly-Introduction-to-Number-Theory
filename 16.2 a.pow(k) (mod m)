@@ -1,0 +1,51 @@
+/**
+ * Solve a.pow(k) (mod m),
+ * where k is really big.*/
+
+
+fun main() {
+
+    // 289. So 1147 is not prime number.
+    println(f(28 ,749, 1147))
+
+    // 562.
+    println(f(2, 1000, 2379))
+
+    // 3214
+    println(f(567, 1234, 4321))
+
+    // 1296608
+    println(f(47, 258008, 1315171))
+
+    // 702
+    println(f(7, 7386, 7387))
+
+    // 1. So 7393 may be prime number.
+    println(f(7, 7392, 7393))
+}
+
+// return a.pow(k) (mod m)
+fun f(base: Int, pow: Int, mod: Int): Int {
+
+    var a = base.toLong()
+    var k = pow.toLong()
+
+    // Init result.
+    var b = 1L
+
+    // Think k as binary number.
+    while (k >= 1) {
+
+        // Last element is one.
+        if (k % 2 == 1L) {
+            b = b * a % mod
+        }
+
+        // Move to bigger power.
+        a = a * a % mod
+
+        // Delete last element.
+        k = k / 2
+    }
+    return b.toInt()
+}
