@@ -1,0 +1,272 @@
+import kotlin.math.exp
+import kotlin.math.log
+import kotlin.math.pow
+import kotlin.math.sqrt
+
+/**
+ * Solve x.pow(k) = b  (mod m)  */
+
+fun main() {
+
+    // 763
+    println(kRoot(329, 452, 1147) ?: "There is no solution.")
+
+    // 763
+    println(kRoot(113, 347, 463) ?: "There is no solution.")
+
+    // 559
+    println(kRoot(275, 139, 588) ?: "There is no solution.")
+
+    // There is no solution, gcd(6, 9) != 1
+    // There is no solution.
+    println(kRoot(5, 6, 9) ?: "There is no solution.")
+
+    // There is no solution, gcd(2, fi(1279)) != 1, , don't satisfy Euler's theorem
+    // There is no solution.
+    println(kRoot(2, 23, 1279) ?: "There is no solution.")
+
+}
+
+fun kRoot(k: Int, b: Int, m: Int): Int? {
+    if (gcd(b, m) != 1) {
+        println("There is no solution, gcd($b, $m) != 1")
+        return null
+    }
+    val fi = eulerTotient(m)
+    val (u, _, gcd) = getIntegerRoot(k, fi)
+    if (gcd != 1) {
+        println("There is no solution, gcd($k, fi($m)) != 1, , don't satisfy Euler's theorem")
+        return null
+    }
+    return f(b, u, m)
+}
+
+
+fun eulerTotient(n: Int): Int {
+    val pairList = factorization(n)
+
+    var total = 1.0
+
+    pairList.forEach {
+        total *= (it.first - 1) * it.first.toDouble().pow(it.second - 1)
+    }
+
+    return total.toInt()
+}
+
+// Factorize a number, return List of Pair(prime, times)   1000 = [(2, 3), (5, 3)]
+fun factorization(n: Int): List<Pair<Int, Int>> {
+
+    val size = getPrimeListSize(n)
+
+    val primeList = findNPrime(size)
+
+    return fac(n, primeList)
+}
+
+// The biggest prime number in prime list is about sqrt(n).
+fun fac(n: Int, primeList: List<Int>): List<Pair<Int, Int>> {
+
+    // Init steps
+    var number = n
+    val facList = mutableListOf<Pair<Int, Int>>()
+    var index = -1
+
+    // Check each prime number.
+    for (prime in primeList) {
+
+        // Divisor are 1 and number.
+        if (prime > sqrt(number.toDouble())) {
+            facList.add(Pair(number, 1))
+            return facList
+        }
+
+        // If it's divisor, put it into list
+        if (number % prime == 0) {
+            facList.add(Pair(prime, 0))
+            index += 1
+        }
+
+        // Factor num until they are coPrime.
+        while (number > 1 && number % prime == 0) {
+            facList[index] = facList[index] + 1
+            number /= prime
+        }
+
+        // If finish factor, return list.
+        if (number == 1)
+            return facList
+    }
+
+    // Do nothing.
+    return facList
+}
+
+operator fun Pair<Int, Int>.plus(int: Int) = Pair(this.first, this.second + int)
+
+// Prime number theorem, find 26% more incase n is small.
+fun getPrimeListSize(n: Int): Int {
+    return (n / log(n.toDouble(), exp(1.0)) * 1.26).toInt()
+}
+
+// Return first n prime numbers as a list.
+fun findNPrime(size: Int): MutableList<Int> {
+
+    // Handle argument issue.
+    if (size < 0) throw IllegalArgumentException("Size should be non-negative.")
+
+    // If size = 0, just return empty list.
+    if (size == 0) return mutableListOf()
+
+    var num = 2
+    val primeList = mutableListOf<Int>()
+
+    // Put 2 in list, so when in loop, only look at odd number.
+    primeList += num
+
+    // Next prime number is 3.
+    num += 1
+
+
+    // Check if num is prime number.
+    fun isPrime(num: Int): Boolean {
+
+        // If num is not prime number, it can only be divide by 2..sqrt(num).
+        for (prime in primeList) {
+
+            // Can not be divide.
+            if (prime > sqrt(num.toDouble())) {
+                return true
+            }
+
+            // Can be divide.
+            if (num % prime == 0)
+                return false
+        }
+        return false
+    }
+
+    // Still need size - 1 prime number.  Had put 2 in list.
+    var need = size - 1
+
+    // Keep generate until list size = n.
+    while (need > 0) {
+
+        // Check if num is prime
+        val isPrime = isPrime(num)
+
+        // Num is prime.
+        if (isPrime) {
+
+            // Put it into prime number list
+            primeList += num
+            need -= 1
+
+        }
+
+        // Look for next odd number
+        num += 2
+    }
+    return primeList
+}
+
+// return a.pow(k) (mod m)
+fun f(base: Int, pow: Int, mod: Int): Int {
+
+    var a = base.toLong()
+    var k = pow.toLong()
+
+    // Init result.
+    var b = 1L
+
+    // Think k as binary number.
+    while (k >= 1) {
+
+        // Last element is one.
+        if (k % 2 == 1L) {
+            b = b * a % mod
+        }
+
+        // Move to bigger power.
+        a = a * a % mod
+
+        // Delete last element.
+        k = k / 2
+    }
+    return b.toInt()
+}
+
+/**
+ * give a, b.
+ * find ax + by = gcd(a, b) integer solution
+ * return Triple(x, y, gcd(a, b)) where x >= 0.*/
+fun getIntegerRoot(a: Int, b: Int): Triple<Int, Int, Int> {
+
+    // Handle when input < 0
+    if (a < 0 || b < 0) throw IllegalArgumentException("Input should be non-negative.")
+
+    // Handle when input have 0.
+    if (a == 0 && b > 0) return Triple(0, 1, b)
+    if (a > 0 && b == 0) return Triple(1, 0, a)
+    if (a == 0 && b == 0) return Triple(0, 0, 0)
+
+
+    /**
+     * Handle when input both > 0.
+     *
+     * Pair(m, n) means this number equals to a * m + b * n.
+     * */
+
+    // If b > a, also get correct answer.
+    var big = a
+    var small = b
+
+    // Keep this number's LinearCombination of a and b.
+    var bigLinearCombination = Pair(1, 0)
+    var smallLinearCombination = Pair(0, 1)
+
+    // See if a = K * b, if it is, then return easily.
+    var remainder = big % small
+    if (remainder == 0) return Triple(0, 1, small)
+
+    // Do Euclidean algorithm, keep the Linear Combination for remainder.
+    while (remainder != 0) {
+        val quotient = big / small
+
+        // Change big and small number.
+        big = small
+        small = remainder
+
+        // Find Linear Combination for remainder.
+        val newPair = bigLinearCombination - quotient * smallLinearCombination
+
+        // Change big and small number Linear Combination.
+        bigLinearCombination = smallLinearCombination
+        smallLinearCombination = newPair
+
+        // For condition "while".
+        remainder = big % small
+
+    }
+
+    // Want x > 0. smallest no-negative too.
+    while (smallLinearCombination.first <= 0) {
+        smallLinearCombination += Pair(b / small, -a / small)
+    }
+
+    // ax + by = gcd(a, b)  ->  Triple(x, y, gcd(a, b))
+    return Triple(smallLinearCombination.first, smallLinearCombination.second, small)
+}
+
+// Incase a = K * b, or the result will be incorrect.
+tailrec fun gcd(x: Int, y: Int): Int = if (y == 0) x else gcd(y, x % y)
+
+// For Pair operation
+operator fun Pair<Int, Int>.times(int: Int) = Pair(this.first * int, this.second * int)
+operator fun Pair<Int, Int>.minus(other: Pair<Int, Int>) =
+    Pair(this.first - other.first, this.second - other.second)
+
+operator fun Pair<Int, Int>.plus(other: Pair<Int, Int>) =
+    Pair(this.first + other.first, this.second + other.second)
+
+operator fun Int.times(other: Pair<Int, Int>) = Pair(this * other.first, this * other.second)
