@@ -1,0 +1,138 @@
+import kotlin.math.exp
+import kotlin.math.log
+import kotlin.math.sqrt
+
+/**
+ * Check one number if prime.*/
+
+fun main() {
+
+    // Find Prime
+    println(if (checkIfPrime(7393)) "Find Prime" else "It is not prime number")
+    
+}
+
+
+// For check one number, not for check multiple number.
+fun checkIfPrime(n: Int): Boolean {
+
+    var isPrime = false
+
+    // ramdon choose 10 number as base.
+    repeat(10) {
+
+        // Fast check, if res != 1, then is not prime.
+        val res = f((2..n - 1).random(), n - 1, n)
+
+        // n is likely be a prime number.Double check.
+        if (res == 1) {
+
+            // Find all prime less than sqrt(n), may be more than that.
+            val size = getPrimeListSize(sqrt(n.toDouble()).toInt())
+            val primeList = findNPrime(size)
+
+            primeList.forEach {
+
+                // n is multiple of prime number, so it is not prime number, stop check.
+                if (n % it == 0)
+                    return@repeat
+            }
+
+            // n pass test, it is a prime number.
+            isPrime = true
+        }
+    }
+    return isPrime
+}
+
+// Prime number theorem, find 26% more incase n is small.
+fun getPrimeListSize(n: Int): Int {
+    return (n / log(n.toDouble(), exp(1.0)) * 1.26).toInt()
+}
+
+// Return first n prime numbers as a list.
+fun findNPrime(size: Int): MutableList<Int> {
+
+    // Handle argument issue.
+    if (size < 0) throw IllegalArgumentException("Size should be non-negative.")
+
+    // If size = 0, just return empty list.
+    if (size == 0) return mutableListOf()
+
+    var num = 2
+    val primeList = mutableListOf<Int>()
+
+    // Put 2 in list, so when in loop, only look at odd number.
+    primeList += num
+
+    // Next prime number is 3.
+    num += 1
+
+
+    // Check if num is prime number.
+    fun isPrime(num: Int): Boolean {
+
+        // If num is not prime number, it can only be divide by 2..sqrt(num).
+        for (prime in primeList) {
+
+            // Can not be divide.
+            if (prime > sqrt(num.toDouble())) {
+                return true
+            }
+
+            // Can be divide.
+            if (num % prime == 0)
+                return false
+        }
+        return false
+    }
+
+    // Still need size - 1 prime number.  Had put 2 in list.
+    var need = size - 1
+
+    // Keep generate until list size = n.
+    while (need > 0) {
+
+        // Check if num is prime
+        val isPrime = isPrime(num)
+
+        // Num is prime.
+        if (isPrime) {
+
+            // Put it into prime number list
+            primeList += num
+            need -= 1
+
+        }
+
+        // Look for next odd number
+        num += 2
+    }
+    return primeList
+}
+
+// return a.pow(k) (mod m)
+fun f(base: Int, pow: Int, mod: Int): Int {
+
+    var a = base.toLong()
+    var k = pow.toLong()
+
+    // Init result.
+    var b = 1L
+
+    // Think k as binary number.
+    while (k >= 1) {
+
+        // Last element is one.
+        if (k % 2 == 1L) {
+            b = b * a % mod
+        }
+
+        // Move to bigger power.
+        a = a * a % mod
+
+        // Delete last element.
+        k = k / 2
+    }
+    return b.toInt()
+}
