@@ -1,0 +1,80 @@
+import java.math.BigInteger
+
+// Miller–Rabin primality test.
+
+fun main() {
+
+    // ture
+    println(millerRabin(2857075406625698845.toBigInteger()))
+
+    // false
+    println(millerRabin(155196355420821961.toBigInteger()))
+
+    // true
+    println(millerRabin(155196355420821889.toBigInteger()))
+}
+
+
+// Miller–Rabin primality test. If composite, return true.
+fun millerRabin(bigInteger: BigInteger): Boolean {
+    if (bigInteger % 2.toBigInteger() == 0.toBigInteger()) {
+        return true
+    }
+
+    var k = 0
+    var bigInt = bigInteger - 1.toBigInteger()
+
+    while (bigInt % 2.toBigInteger() == 0.toBigInteger()) {
+        bigInt /= 2.toBigInteger()
+        k += 1
+    }
+    val q = bigInt
+    val a = (2..Int.MAX_VALUE).random().toBigInteger()
+
+    val a_result = f(a, q, bigInteger)
+
+    val test_a = if (a_result != 1.toBigInteger()) true else false
+    var test_b = true
+
+    var b_result = a_result
+
+    (0..k - 1).forEach {
+        if (b_result != (bigInteger - 1.toBigInteger())) {
+            b_result = b_result * b_result % bigInteger
+        } else {
+            test_b = false
+        }
+    }
+
+    if (test_a && test_b)
+        return true
+    else
+        return false
+
+
+}
+
+fun f(base: BigInteger, pow: BigInteger, mod: BigInteger): BigInteger {
+
+    var a = base
+    var k = pow
+
+    // Init result.
+    var b = 1.toBigInteger()
+
+    // Think k as binary number.
+    while (k >= 1.toBigInteger()) {
+
+        // Last element is one.
+        if (k % 2.toBigInteger() == 1.toBigInteger()) {
+            b = b * a % mod
+        }
+
+        // Move to bigger power.
+        a = a * a % mod
+
+        // Delete last element.
+        k = k / 2.toBigInteger()
+    }
+    return b
+}
