@@ -49,3 +49,29 @@ fun f(base: Int, pow: Int, mod: Int): Int {
     }
     return b.toInt()
 }
+
+// Solve a.pow(k) (mod m).
+fun f(base: Long, pow: Long, mod: Long): Long {
+
+    var a = base
+    var k = pow
+
+    // Init result.
+    var b = 1L
+
+    // Think k as binary number.
+    while (k >= 1) {
+
+        // Last element is one.
+        if (k % 2 == 1L) {
+            b = b * a % mod
+        }
+
+        // Move to bigger power.
+        a = a * a % mod
+
+        // Delete last element.
+        k = k / 2
+    }
+    return b
+}
