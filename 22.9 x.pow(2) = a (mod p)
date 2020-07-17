@@ -1,0 +1,105 @@
+import kotlin.math.pow
+
+// solve x.pow(2) = a (mod p), where p = 8 * k + 5.
+fun main() {
+
+    // 494, mean 494 * 494 = 17  (mod 1021)
+    println(s(17, 1021))
+
+    // 858
+    println(s(23, 1021))
+
+    // -1, mean no answer.
+    println(s(31, 1021))
+
+    // -1, mean 31 is not QR, so no solution above.
+    println(legendreSymbol(31, 1021))
+}
+
+// Solve x * x = a (mod p), where p = 8k + 5.
+fun s(a: Long, p: Long): Long {
+
+    // No answer, cause a is not QR.
+    if (legendreSymbol(a, p) != 1) return -1L
+
+
+    val root_1 = f(a, (p + 3) / 8, p)
+
+    // return root 1
+    if ((root_1 * root_1 - a) % p == 0L) return root_1
+
+    // return root 2
+    else return f(4 * a, (p - 5) / 8, p) * 2 * a % p
+}
+
+// Solve a.pow(k) (mod m).
+fun f(base: Long, pow: Long, mod: Long): Long {
+
+    var a = base
+    var k = pow
+
+    // Init result.
+    var b = 1L
+
+    // Think k as binary number.
+    while (k >= 1) {
+
+        // Last element is one.
+        if (k % 2 == 1L) {
+            b = b * a % mod
+        }
+
+        // Move to bigger power.
+        a = a * a % mod
+
+        // Delete last element.
+        k = k / 2
+    }
+    return b
+}
+
+// a and b are odd number.
+fun legendreSymbol(a: Long, b: Long): Int {
+    when {
+
+        // Base case
+        a == 0L -> {
+            return 1
+        }
+
+        // Case 1.
+        a == -1L -> {
+            when (b % 4) {
+                1L -> return 1
+                3L -> return -1
+            }
+        }
+
+        // Case 2.
+        a == 2L -> {
+            when (b % 8) {
+                1L, 7L -> return 1
+                3L, 5L -> return -1
+            }
+        }
+
+        // Case 3, swap a and b.
+        else -> {
+            var top = b % a
+            var time = 0
+            while (top > 0L && top % 2 == 0L) {
+                top /= 2L
+                time += 1
+            }
+            return legendreSymbol(2L, a).toDouble().pow(time).toInt() * (
+                    if (a % 4 == 1L || b % 4 == 1L) legendreSymbol(
+                        top,
+                        a
+                    ) else -legendreSymbol(top, a)
+                    )
+        }
+    }
+
+    // error
+    return -2
+}
