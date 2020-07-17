@@ -1,0 +1,85 @@
+import kotlin.math.pow
+
+// Euler's criterion
+fun main() {
+
+    val a = 11L
+    val b = 1729L
+    // 1729 is not a prime number.
+    println(if (eulerCriterion(a, b)) "$b may be a prime number." else "$b is not a prime number.")
+
+}
+
+fun eulerCriterion(a: Long, b: Long):Boolean = f(a, (b-1)/2, b) == legendreSymbol(a, b).toLong()
+
+// Solve a.pow(k) (mod m).
+fun f(base: Long, pow: Long, mod: Long): Long {
+
+    var a = base
+    var k = pow
+
+    // Init result.
+    var b = 1L
+
+    // Think k as binary number.
+    while (k >= 1) {
+
+        // Last element is one.
+        if (k % 2 == 1L) {
+            b = b * a % mod
+        }
+
+        // Move to bigger power.
+        a = a * a % mod
+
+        // Delete last element.
+        k = k / 2
+    }
+    return b
+}
+
+// a and b are odd number.
+fun legendreSymbol(a: Long, b: Long): Int {
+    when {
+
+        // Base case
+        a == 0L -> {
+            return 1
+        }
+
+        // Case 1.
+        a == -1L -> {
+            when (b % 4) {
+                1L -> return 1
+                3L -> return -1
+            }
+        }
+
+        // Case 2.
+        a == 2L -> {
+            when (b % 8) {
+                1L, 7L -> return 1
+                3L, 5L -> return -1
+            }
+        }
+
+        // Case 3, swap a and b.
+        else -> {
+            var top = b % a
+            var time = 0
+            while (top > 0L && top % 2 == 0L) {
+                top /= 2L
+                time += 1
+            }
+            return legendreSymbol(2L, a).toDouble().pow(time).toInt() * (
+                    if (a % 4 == 1L || b % 4 == 1L) legendreSymbol(
+                        top,
+                        a
+                    ) else -legendreSymbol(top, a)
+                    )
+        }
+    }
+
+    // error
+    return -2
+}
